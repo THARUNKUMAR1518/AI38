@@ -1,0 +1,135 @@
+# AI Mini Project: Knight's Tour with Warnsdorff's Heuristic and Visualization
+import pygame
+import time
+import sys
+N = 8
+SQUARE_SIZE = 80
+WIDTH, HEIGHT = N * SQUARE_SIZE, N * SQUARE_SIZE
+WHITE = (255, 255, 255)
+GRAY = (200, 200, 200)
+BLUE = (50, 50, 255)
+BLACK = (0, 0, 0)
+pygame.init()
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Knight's Tour - AI Mini Project")
+font = pygame.font.SysFont(None, 24)
+# Knight movement vectors
+moves_x = [2, 1, -1, -2, -2, -1, 1, 2]
+moves_y = [1, 2, 2, 1, -1, -2, -2, -1]
+# Draw the board
+def draw_board(board):
+ for y in range(N):
+ for x in range(N):
+ rect = pygame.Rect(x * SQUARE_SIZE, y * SQUARE_SIZE, SQUARE_SIZE, 
+SQUARE_SIZE)
+ pygame.draw.rect(screen, WHITE if (x + y) % 2 == 0 else GRAY, rect)
+ if board[y][x] != -1:
+ text = font.render(str(board[y][x]), True, BLACK)
+ screen.blit(text, (x * SQUARE_SIZE + 30, y * SQUARE_SIZE + 30))
+ pygame.display.flip()
+# Check if move is valid
+def is_valid(x, y, board):
+ return 0 <= x < N and 0 <= y < N and board[y][x] == -1
+# Count onward moves for Warnsdorff's heuristic
+def count_onward_moves(x, y, board):
+ count = 0
+ for i in range(8):
+ nx, ny = x + moves_x[i], y + moves_y[i]
+ if is_valid(nx, ny, board):
+ count += 1
+ return count
+# Get next moves sorted by heuristic
+def next_moves(x, y, board):
+ candidates = []
+for i in range(8):
+
+ nx, ny = x + moves_x[i], y + moves_y[i]
+
+ if is_valid(nx, ny, board):
+
+ candidates.append((count_onward_moves(nx, ny, board), nx, ny))
+
+ candidates.sort()
+
+ return [(nx, ny) for _, nx, ny in candidates]
+
+# Recursive solver with visualization
+
+def solve_knight(board, x, y, move_count):
+
+ board[y][x] = move_count
+
+ draw_board(board)
+
+ time.sleep(0.2)
+
+ if move_count == N * N - 1:
+
+ return True
+
+ for nx, ny in next_moves(x, y, board):
+
+ if solve_knight(board, nx, ny, move_count + 1):
+
+ return True
+
+ board[y][x] = -1
+
+ draw_board(board)
+
+ return False
+
+# Main function
+
+def main():
+
+ board = [[-1 for _ in range(N)] for _ in range(N)]
+
+ start_x, start_y = 0, 0 # Starting position
+
+ draw_board(board)
+
+ solve_knight(board, start_x, start_y, 0)
+
+ while True:
+
+ for event in pygame.event.get():
+
+ if event.type == pygame.QUIT:
+
+ pygame.quit()
+
+ sys.exit()
+
+if __name__ == "__main__":
+mani()
+
+
+
+OUTPUT
+
+0 59 38 33 30 17 8 63 
+
+37 34 31 60 9 62 29 16 
+
+58 1 36 39 32 27 18 7 
+
+35 48 41 26 61 10 15 28 
+
+42 57 2 49 40 23 6 19 
+
+47 50 45 54 25 20 11 14 
+
+56 43 52 3 22 13 24 5 
+
+51 46 55 44 53 4 21 12 
+
++---------------------------------------+
+
+| [ 0 ] [59 ] [38 ] [33 ] ... |
+
+| [37 ] [34 ] [31 ] [60 ] ... |
+
+| ... |
+
+| Each cell shows move number |
